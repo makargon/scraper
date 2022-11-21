@@ -11,6 +11,7 @@ from PIL import Image
 import pytesseract
 
 import os.path
+import csv
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -41,7 +42,9 @@ class Scrap():
     checkAllViews = True
     checkDayViews = True
     checkPiar = True
-
+    stoping=False
+    url=''
+    
     #----------------Google API------------
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
     SERVICE_ACCOUNT_FILE = 'credentials.json'
@@ -68,12 +71,12 @@ class Scrap():
     result_list = []
     list1 = [result_list]
 
+    #------------Методы----------------
     def clear_the_table(self):
         self.range_ = "Sheet1!A1:Z1000"
         self.response = self.service.clear(
             spreadsheetId=self.SAMPLE_SPREADSHEET_ID, range=self.range_).execute()
 
-    #------------Методы----------------
     def openBrowser(self):
         self.options = webdriver.ChromeOptions()
         pytesseract.pytesseract.tesseract_cmd = 'Tesseract\\tesseract.exe'
@@ -89,20 +92,39 @@ class Scrap():
             ChromeDriverManager().install()))
         self.driver.get(url="https://www.avito.ru")
 
+        with open('Categoryy.csv', 'r', newline='', encoding='cp866') as self.csvfile:
+            self.reader=csv.reader(self.csvfile, delimiter=';', )
+            self.dictionary=dict()
+            for x in self.reader:
+                self.dictionary[x[0]]=x[1]
+
     def stop(self): # TODO: переписать
         self.driver.close()
-        self.driver.quit()
+        # self.driver.quit()
+        self.stoping=True
+        self.driver.get(url="https://www.avito.ru")
 
     def closeBrowser(self):
         self.driver.close()
-        self.driver.quit()  
+        self.driver.quit()
+    
+    def search(self):
+        self.url = "https://www.avito.ru/ufa?cd=1&q="
+        self.searchText=self.searchText.replace(' ', '+')
+        self.url += self.searchText
+        
 
     def adds_analyze(self):
         self.range_ = "Sheet1!A1:Z1000"
         # self.url = "https://www.avito.ru/ufa/avtomobili?cd=1&radius=200"
         self.url = "https://www.avito.ru/kazan/kvartiry"
-        
-        for self.x in range(1, 10):
+
+        if self.searchMode: self.search()
+        else: self.url=self.dictionary[self.category]
+
+        for self.x in range(1, ((int(self.pages)+1))):
+            if self.stoping:
+                break
             try:
                 self.driver.get(url=self.url)
                 # login_button = driver.find_element(
@@ -119,7 +141,6 @@ class Scrap():
                 # By.CSS_SELECTOR, '[data-marker="login-form/submit"]')
                 # confirm_button.click()
                 # time.sleep(60)
-                #self.city = "Уфа"
                 try:
                     self.location_form = self.driver.find_element(
                         By.CSS_SELECTOR, '[data-marker="search-form/region"]')
@@ -361,7 +382,7 @@ class Scrap():
                 # driver.close()
                 # driver.quit()
                 pass
-    
+
     def call_analyze(self):
         self.range_ = "Sheet2!A1:Z1000"
         self.url = "https://www.avito.ru/ufa/avtomobili?cd=1&radius=200"
@@ -409,7 +430,7 @@ class Scrap():
                     self.confirm.click()
             except Exception as ex:
                 print(ex)
-            for self.x in range(1, 10):
+            for self.x in range(1, ((int(self.pages)+1))):
                 self.ads = self.driver.find_elements(By.CLASS_NAME, 'iva-item-root-_lk9K')
                 self.piar_list = {}
                 for self.ad in self.ads:
@@ -537,7 +558,7 @@ class Scrap():
                         self.category = "Не удалось получить категорию товара"
 
                     try:
-                        self.time = self.datetime.now()
+                        self.time = datetime.now()
                     except:
                         self.time = "Ошибка"
 
@@ -627,3 +648,7 @@ class Scrap():
             # driver.close()
             # driver.quit()
             pass
+
+# scapper=Scrap()
+# scapper.search()
+# print(scapper.url)

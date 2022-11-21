@@ -2,6 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtCore import QThread
 import sys
+import csv
 import Scrap_copy as Scrap
 
 scrapper = Scrap.Scrap()
@@ -105,12 +106,11 @@ class Ui_CallWindow(object): #Окно холодных звонков
         self.verticalLayout_3.addWidget(self.labelCategory)
         self.comboCaterory = QtWidgets.QComboBox(self.widget1)
         self.comboCaterory.setObjectName("comboCaterory")
-
-        with open("Category", "r", encoding='utf-8') as file: #Импорт категорий поиска,
-            a = file.readlines()                              #с последующим добавлением в комбобокс
-            for i in a:
-                if i != "\n":
-                    self.comboCaterory.addItem(i.strip())
+        with open('Categoryy.csv', 'r', newline='', encoding='cp866') as self.csvfile:
+            self.reader=csv.reader(self.csvfile, delimiter=';', )
+            self.dictionary=dict()
+            for x in self.reader:
+                self.comboCaterory.addItem(x[0])
 
         self.verticalLayout_3.addWidget(self.comboCaterory)
         self.widget2 = QtWidgets.QWidget(CallWindow)
@@ -180,6 +180,19 @@ class Ui_CallWindow(object): #Окно холодных звонков
     
     def call_analyze(self, selected):
         Scrapper_insance.command = "call_analyze"
+        # if self.Search.text() != "":
+        #     scrapper.searchText=self.Search.text()
+        #     scrapper.searchMode=True
+        # else:
+        #     scrapper.searchMode=False
+        if self.checPhone.checkState()=="CheckState.Checked": 
+            scrapper.checkPhone=True
+            print(1)
+        else: print(2)
+
+        # print(self.checPhone.checkState())
+        # print(self.checkServices.checkState())
+        scrapper.city = self.lineLocate.text()
         Scrapper_insance.start()
 
 
@@ -264,11 +277,12 @@ class Ui_AdsWindow(object): #Окно объявлений
         self.verticalLayout.addWidget(self.label_3)
         self.comboCategory = QtWidgets.QComboBox(self.widget3)
         self.comboCategory.setObjectName("comboCategory")
-        with open("Category", "r", encoding='utf-8') as file: #Импорт категорий поиска,
-            a = file.readlines()                              #с последующим добавлением в комбобокс
-            for i in a:
-                if i != "\n":
-                    self.comboCategory.addItem(i.strip())
+        self.spinPage.setMinimum(1)
+        with open('Categoryy.csv', 'r', newline='', encoding='cp866') as self.csvfile:
+            self.reader=csv.reader(self.csvfile, delimiter=';', )
+            self.dictionary=dict()
+            for x in self.reader:
+                self.comboCategory.addItem(x[0])
 
         self.verticalLayout.addWidget(self.comboCategory)
 
@@ -322,7 +336,12 @@ class Ui_AdsWindow(object): #Окно объявлений
 
     def start(self, selected):
         scrapper.city = self.lineLocate_2.text()
-        scrapper.searchText=self.Search.text()
+        scrapper.pages = self.spinPage.text()
+        if self.Search.text() != "":
+            scrapper.searchText=self.Search.text()
+            scrapper.searchMode=True
+        else:
+            scrapper.searchMode=False
         Scrapper_insance.command = "scraping"
         Scrapper_insance.start()
 
