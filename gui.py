@@ -180,16 +180,10 @@ class Ui_CallWindow(object): #Окно холодных звонков
     
     def call_analyze(self, selected):
         Scrapper_insance.command = "call_analyze"
-        # if self.Search.text() != "":
-        #     scrapper.searchText=self.Search.text()
-        #     scrapper.searchMode=True
-        # else:
-        #     scrapper.searchMode=False
-        if self.checPhone.checkState()=="CheckState.Checked": 
-            scrapper.checkPhone=True
-            print(1)
-        else: print(2)
-
+        scrapper.checkPhone=self.checPhone.isChecked()
+        scrapper.checkAllViews=self.checkViewsAll.isChecked()
+        scrapper.checkViewsDay=self.checkViewsDay.isChecked()
+        scrapper.checkPiar=self.checkServices.isChecked()
         # print(self.checPhone.checkState())
         # print(self.checkServices.checkState())
         scrapper.city = self.lineLocate.text()

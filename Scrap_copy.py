@@ -385,7 +385,8 @@ class Scrap():
 
     def call_analyze(self):
         self.range_ = "Sheet2!A1:Z1000"
-        self.url = "https://www.avito.ru/ufa/avtomobili?cd=1&radius=200"
+        # self.url = "https://www.avito.ru/ufa/avtomobili?cd=1&radius=200"
+        self.url=self.dictionary[self.category]
 
         try:
             self.driver.get(url=self.url)
@@ -434,42 +435,46 @@ class Scrap():
                 self.ads = self.driver.find_elements(By.CLASS_NAME, 'iva-item-root-_lk9K')
                 self.piar_list = {}
                 for self.ad in self.ads:
-                    try:
-                        self.arrow = self.ad.find_element(
-                            By.CLASS_NAME, "styles-arrow-jfRdd")
-                        self.hover = ActionChains(self.driver).move_to_element(
-                            self.arrow).perform()
-                        sleep(2)
-                        self.piar_data = self.driver.find_elements(
-                            By.CLASS_NAME, "styles-entry-MuP_G")
+                    if self.checkPiar:
+                        try:
+                            self.arrow = self.ad.find_element(
+                                By.CLASS_NAME, "styles-arrow-jfRdd")
+                            self.hover = ActionChains(self.driver).move_to_element(
+                                self.arrow).perform()
+                            sleep(2)
+                            self.piar_data = self.driver.find_elements(
+                                By.CLASS_NAME, "styles-entry-MuP_G")
 
-                        self.piar_list.clear
-                        for self.piar in self.piar_data:
-                            self.piar_text = self.piar.find_element(
-                                By.CLASS_NAME, "styles-title-nWv6g").text
-                            self.piar_image = self.piar.find_element(
-                                By.CLASS_NAME, "style-image-wPviB").get_attribute("src")
-                            self.spliter = self.piar_image.split(
-                                "https://www.avito.st/s/common/components/monetization/icons/web/")[1]
-                            self.piar_orders = self.spliter.replace(".svg", "")
-                            if len(self.piar_data) == 0:
-                                self.piar_list = "Не использовано услуг продвижения"
-                            else:
-                                if "_1" in self.piar_orders:
-
-                                    self.piar_list[self.piar_text] = self.piar_orders
+                            self.piar_list.clear
+                            for self.piar in self.piar_data:
+                                self.piar_text = self.piar.find_element(
+                                    By.CLASS_NAME, "styles-title-nWv6g").text
+                                self.piar_image = self.piar.find_element(
+                                    By.CLASS_NAME, "style-image-wPviB").get_attribute("src")
+                                self.spliter = self.piar_image.split(
+                                    "https://www.avito.st/s/common/components/monetization/icons/web/")[1]
+                                self.piar_orders = self.spliter.replace(".svg", "")
+                                if len(self.piar_data) == 0:
+                                    self.piar_list = "Не использовано услуг продвижения"
                                 else:
-                                    self.piar_list[self.piar_text] = "True"
-                                self.strings = []
-                            for self.key, self.item in self.piar_list.items():
-                                self.strings.append("{}: {}".format(
-                                    self.key.capitalize(), self.item))
-                            self.piar_uslugi = "; ".join(self.strings)
-                            self.strings.clear()
-                    except Exception as ex:
-                        print(ex)
-                        self.piar_uslugi = "Не использовано услуг продвижения"
-                    sleep(3)
+                                    if "_1" in self.piar_orders:
+
+                                        self.piar_list[self.piar_text] = self.piar_orders
+                                    else:
+                                        self.piar_list[self.piar_text] = "True"
+                                    self.strings = []
+                                for self.key, self.item in self.piar_list.items():
+                                    self.strings.append("{}: {}".format(
+                                        self.key.capitalize(), self.item))
+                                self.piar_uslugi = "; ".join(self.strings)
+                                self.strings.clear()
+                        except Exception as ex:
+                            print(ex)
+                            self.piar_uslugi = "Не использовано услуг продвижения"
+                        sleep(3)
+
+                    else: 
+                        self.piar_uslugi = "-"
 
                     self.ad.click()
                     self.driver.implicitly_wait(5)
@@ -479,7 +484,6 @@ class Scrap():
                     try:
                         self.title = self.driver.find_element(
                             By.XPATH, "//span[@data-marker='item-view/title-info']").text
-
                     except:
                         self.title = "Не удалось получить название объявления"
 
@@ -487,28 +491,27 @@ class Scrap():
                     try:
                         self.price = self.driver.find_element(
                             By.CLASS_NAME, "style-item-price-text-_w822").text
-
                     except:
                         self.price = "Не удалось определить цену"
 
                     try:
                         self.username = self.driver.find_element(
                             By.XPATH, "//div[@data-marker='seller-info/name']").text
-
                     except:
                         self.username = "Не удалось определить имя пользователя"
 
                     try:
-
                         self.location = self.driver.find_element(
                             By.CLASS_NAME, "style-item-address__string-wt61A").text
                     except:
                         self.location = "Не получилось определить адресс"
+
                     try:
                         self.score = self.driver.find_element(
                             By.CLASS_NAME, "style-seller-info-rating-score-C0y96").text
                     except:
                         self.score = "У пользователя нет рейтинга"
+
                     try:
                         self.reviews = self.driver.find_element(
                             By.XPATH, "//span[@data-marker='rating-caption/rating']").text
@@ -524,33 +527,33 @@ class Scrap():
                             By.CLASS_NAME, "style-seller-info-value-vOioL")[1].text
                     except:
                         self.since = "Не удалось определить с какого времени продавец на авито"
-                    # try:
-                        # button = driver.find_element(
-                        # By.CSS_SELECTOR, '[data-marker="item-phone-button/card"]')
-                        # button.click()
-                        # phone_number = driver.find_element(
-                        # By.CLASS_NAME, "item-popup-itemPhone__img-UxE8p").get_attribute#("src")
 
-                    # except Exception as _ex:
-                        # print(_ex)
-                        #phone_number = "Не удалось получить номер телефона"
-                    try:
-                        self.total_views = self.driver.find_element(
-                            By.CSS_SELECTOR, '[data-marker="item-view/total-views"]').text
-                    except Exception as _ex:
-                        print(_ex)
-                        self.total_views = "Не удалось получить просмотры за все время"
-                    try:
-                        self.today_views = self.driver.find_element(
-                            By.CSS_SELECTOR, '[data-marker="item-view/today-views"]').text
-                    except:
-                        self.today_views = "Не удалось получить просмотры за сегодня"
+                    
+                    if self.checkAllViews:
+                        try:
+                            self.total_views = self.driver.find_element(
+                                By.CSS_SELECTOR, '[data-marker="item-view/total-views"]').text
+                        except Exception as _ex:
+                            print(_ex)
+                            self.total_views = "Не удалось получить просмотры за все время"
+                    else:
+                        self.total_views = "-"
+                    
+                    if self.checkDayViews:
+                        try:
+                            self.today_views = self.driver.find_element(
+                                By.CSS_SELECTOR, '[data-marker="item-view/today-views"]').text
+                        except:
+                            self.today_views = "Не удалось получить просмотры за сегодня"
+                    else:
+                        self.today_views = "-"
+                    
                     try:
                         type = self.driver.find_element(
-
                             By.CSS_SELECTOR, '[data-marker="seller-info/label"]').text
                     except:
                         type = "Компания"
+
                     try:
                         self.category = self.driver.find_elements(
                             By.CLASS_NAME, "breadcrumbs-linkWrapper-jZP0j")[2].text
@@ -561,29 +564,32 @@ class Scrap():
                         self.time = datetime.now()
                     except:
                         self.time = "Ошибка"
+                    
+                    if self.checkPhone:
+                        try:
+                            self.button = self.driver.find_element(
+                                By.CSS_SELECTOR, '[data-marker="item-phone-button/card"]')
+                            self.button.click()
+                            sleep(10)
+                            self.data1 = self.driver.find_element(
+                                By.CLASS_NAME, "item-popup-phoneImage-adVhz").get_attribute("src")
+                            self.data1 = self.data1.split('data:image/png;base64,')[1]
+                            self.img_data = b64decode(self.data1)
+                            with open("img.png", "wb") as file:
+                                file.write(self.img_data)
+                            self.image = Image.open("img.png")
+                            self.phone_number = pytesseract.image_to_string(self.image)
+
+                            self.close_button = self.driver.find_element(
+                                By.CLASS_NAME, 'popup-close-XlIOw')
+                            self.close_button.click()
+
+                        except Exception as ex:
+                            print(ex)
+                            self.phone_number = "Не удалось определить номер телефона"
+                    else: self.phone_number = "-"
 
                     try:
-
-                        self.button = self.driver.find_element(
-                            By.CSS_SELECTOR, '[data-marker="item-phone-button/card"]')
-                        self.button.click()
-                        sleep(10)
-                        self.data1 = self.driver.find_element(
-                            By.CLASS_NAME, "item-popup-phoneImage-adVhz").get_attribute("src")
-                        self.data1 = self.data1.split('data:image/png;base64,')[1]
-                        self.img_data = b64decode(self.data1)
-                        with open("img.png", "wb") as file:
-                            file.write(self.img_data)
-                        self.image = Image.open("img.png")
-                        self.phone_number = pytesseract.image_to_string(self.image)
-
-                    except Exception as ex:
-                        print(ex)
-                        self.phone_number = "Не удалось определить номер телефона"
-                    try:
-                        self.close_button = self.driver.find_element(
-                            By.CLASS_NAME, 'popup-close-XlIOw')
-                        self.close_button.click()
                         sleep(2)
                         self.user1 = self.driver.find_element(
                             By.CLASS_NAME, "style-seller-name-link-_yAhr")
