@@ -103,6 +103,15 @@ class Ui_CallWindow(object): #Окно холодных звонков
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.labelCategory = QtWidgets.QLabel(self.widget1)
         self.labelCategory.setObjectName("labelCategory")
+        self.label = QtWidgets.QLabel(CallWindow)
+        self.label.setGeometry(QtCore.QRect(50, 0, 301, 41))
+        self.label.setSizeIncrement(QtCore.QSize(0, 0))
+        self.label.setBaseSize(QtCore.QSize(0, 0))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+
         self.verticalLayout_3.addWidget(self.labelCategory)
         self.comboCaterory = QtWidgets.QComboBox(self.widget1)
         self.comboCaterory.setObjectName("comboCaterory")
@@ -159,6 +168,7 @@ class Ui_CallWindow(object): #Окно холодных звонков
         self.checkViewsDay.setText(_translate("CallWindow", "Кол-во просмотров за сутки"))
         self.labelCategory.setText(_translate("CallWindow", "Категория услуг или товаров"))
         self.labelLocation.setText(_translate("CallWindow", "Город или регион"))
+        self.label.setText(_translate("CallWindow", "Сбор базы для холодных звонков"))
         self.comboLocation.setItemText(0, _translate("CallWindow", "Москва"))
         self.comboLocation.setItemText(1, _translate("CallWindow", "Санкт-Петербург"))
         self.comboLocation.setItemText(2, _translate("CallWindow", "Казань"))
@@ -171,6 +181,7 @@ class Ui_CallWindow(object): #Окно холодных звонков
     def back_click(self, selected): #Переключение окон
         CallWindow.close()
         ModeWindow.show()
+        scrapper.stoping=True
 
     def locationEdit(self, selected):
         self.lineLocate.setText(self.comboLocation.currentText())
@@ -184,6 +195,7 @@ class Ui_CallWindow(object): #Окно холодных звонков
         scrapper.checkAllViews=self.checkViewsAll.isChecked()
         scrapper.checkViewsDay=self.checkViewsDay.isChecked()
         scrapper.checkPiar=self.checkServices.isChecked()
+        print(scrapper.checkPhone, scrapper.checkAllViews, scrapper.checkViewsDay)
         # print(self.checPhone.checkState())
         # print(self.checkServices.checkState())
         scrapper.city = self.lineLocate.text()
@@ -280,6 +292,15 @@ class Ui_AdsWindow(object): #Окно объявлений
 
         self.verticalLayout.addWidget(self.comboCategory)
 
+        self.Mlabel = QtWidgets.QLabel(AdsWindow)
+        self.Mlabel.setGeometry(QtCore.QRect(130, 0, 301, 41))
+        self.Mlabel.setSizeIncrement(QtCore.QSize(0, 0))
+        self.Mlabel.setBaseSize(QtCore.QSize(0, 0))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.Mlabel.setFont(font)
+        self.Mlabel.setObjectName("Mlabel")
+
         # Подключение события нажатия кнопки
         self.backBtn.clicked.connect(self.back_click)
         self.startBtn.clicked.connect(self.start)
@@ -309,6 +330,7 @@ class Ui_AdsWindow(object): #Окно объявлений
         self.label.setText(_translate("AdsWindow", "Точный поисковой запрос"))
         self.label_2.setText(_translate("AdsWindow", "Кол-во страниц"))
         self.label_3.setText(_translate("AdsWindow", "Категория услуг или товаров"))
+        self.Mlabel.setText(_translate("AdsWindow", "Анализ объявлений"))
 
     # def locationEdit(self, selected):
     #     scrapper.city = selected
@@ -340,8 +362,10 @@ class Ui_AdsWindow(object): #Окно объявлений
         Scrapper_insance.start()
 
     def stop(self, selected):
-        Scrapper_insance.command = "stop"
-        Scrapper_insance.start()
+        # Scrapper_insance.command = "stop"
+        # Scrapper_insance.start()
+        scrapper.stoping=True
+        print('Остановка парсера')
 
 
 if __name__ == "__main__":
