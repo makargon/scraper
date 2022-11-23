@@ -31,21 +31,21 @@ from google.oauth2 import service_account
 # prox.add_to_capabilities(capabilities)
 
 class Scrap():
-    city="Москва"
-    searchMode=True #True: точный, False: категории
-    searchText="Автомобили"
-    category="Автомобили"
-    pages=1 #кол-во страниц поиска
-    mode=True #True: объявления, False: обзвон
+    city = "Москва"
+    searchMode = True  # True: точный, False: категории
+    searchText = "Автомобили"
+    category = "Автомобили"
+    pages = 1  # кол-во страниц поиска
+    mode = True  # True: объявления, False: обзвон
 
     checkPhone = True
     checkAllViews = True
     checkDayViews = True
     checkPiar = True
-    stoping=False
-    url=''
-    
-    #----------------Google API------------
+    stoping = False
+    url = ''
+
+    # ----------------Google API------------
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
     SERVICE_ACCOUNT_FILE = 'credentials.json'
 
@@ -53,7 +53,6 @@ class Scrap():
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 
     # If modifying these scopes, delete the file token.json.
-
 
     # The ID and range of a sample spreadsheet.
     SAMPLE_SPREADSHEET_ID = '1-iwN06uZH2I2KkBrHjuzPdkgd4V3GnU8vAS2kMg1tCE'
@@ -71,7 +70,7 @@ class Scrap():
     result_list = []
     list1 = [result_list]
 
-    #------------Методы----------------
+    # ------------Методы----------------
     def clear_the_table(self):
         self.range_ = "Sheet1!A1:Z1000"
         self.response = self.service.clear(
@@ -86,53 +85,53 @@ class Scrap():
         self.options.add_argument(ua)
         self.options.add_argument(cookie)
         with open('config.txt', 'r') as file:
-            a=file.readline()
+            a = file.readline()
             if a != "":
-                self.proxy='---proxy-server='
-                self.proxy+=str(a)
+                self.proxy = '---proxy-server='
+                self.proxy += str(a)
                 self.options.add_argument(self.proxy)
                 print(self.proxy)
-        self.options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        self.options.add_experimental_option(
+            "excludeSwitches", ["enable-logging"])
 
         self.driver = webdriver.Chrome(options=self.options, service=Service(
             ChromeDriverManager().install()))
         self.driver.get(url="https://www.avito.ru")
 
         with open('Categoryy.csv', 'r', newline='', encoding='cp866') as self.csvfile:
-            self.reader=csv.reader(self.csvfile, delimiter=';', )
-            self.dictionary=dict()
+            self.reader = csv.reader(self.csvfile, delimiter=';', )
+            self.dictionary = dict()
             for x in self.reader:
-                self.dictionary[x[0]]=x[1]
+                self.dictionary[x[0]] = x[1]
 
-    def stop(self): # TODO: переписать
+    def stop(self):  # TODO: переписать
         self.driver.close()
         # self.driver.quit()
-        self.stoping=True
+        self.stoping = True
         self.driver.get(url="https://www.avito.ru")
 
     def closeBrowser(self):
         self.driver.close()
         self.driver.quit()
-    
+
     def search(self):
         self.url = "https://www.avito.ru/ufa?cd=1&q="
-        self.searchText=self.searchText.replace(' ', '+')
+        self.searchText = self.searchText.replace(' ', '+')
         self.url += self.searchText
-        
 
     def adds_analyze(self):
         self.range_ = "Sheet1!A1:Z1000"
         # self.url = "https://www.avito.ru/ufa/avtomobili?cd=1&radius=200"
         self.url = "https://www.avito.ru/kazan/kvartiry"
 
-        if self.searchMode: 
-            self.search() 
-            print('searchMode(T): ',self.searchMode)
-        else: 
-            self.url=self.dictionary[self.category]
-            print('searchMode(F): ',self.searchMode)
-        print('url: ',self.url)
-        self.stoping=False
+        if self.searchMode:
+            self.search()
+            print('searchMode(T): ', self.searchMode)
+        else:
+            self.url = self.dictionary[self.category]
+            print('searchMode(F): ', self.searchMode)
+        print('url: ', self.url)
+        self.stoping = False
 
         # for self.x in range(1, ((int(self.pages)+1))):
         if True:
@@ -161,12 +160,12 @@ class Scrap():
                     self.location_form = self.driver.find_element(
                         By.CSS_SELECTOR, '[data-marker="search-form/region"]')
                     self.location_form.click()
-                    sleep(1)#2
+                    sleep(1)  # 2
                     self.location_input = self.driver.find_element(
                         By.CLASS_NAME, "suggest-input-rORJM")
                     self.location_input.click()
                     self.location_input.send_keys(self.city)
-                    sleep(3)#5
+                    sleep(3)  # 5
                     try:
                         self.first_reuslt = self.driver.find_element(
                             By.CSS_SELECTOR, '[data-marker="suggest(0)"]')
@@ -174,7 +173,7 @@ class Scrap():
                     except:
                         print("Не правильный поиск локации")
                     finally:
-                        sleep(2)#5
+                        sleep(2)  # 5
                         self.confirm = self.driver.find_element(
                             By.CSS_SELECTOR, '[data-marker="popup-location/save-button"]')
 
@@ -185,7 +184,7 @@ class Scrap():
                     self.ads = self.driver.find_elements(
                         By.CLASS_NAME, 'iva-item-root-_lk9K')
                     self.piar_list = {}
-                    
+
                     for self.ad in self.ads:
                         if self.stoping:
                             print("Парсер остановлен")
@@ -196,7 +195,7 @@ class Scrap():
                                 By.CLASS_NAME, "styles-arrow-jfRdd")
                             self.hover = ActionChains(self.driver).move_to_element(
                                 self.arrow).perform()
-                            sleep(1)#2
+                            sleep(1)  # 2
                             self.piar_data = self.driver.find_elements(
                                 By.CLASS_NAME, "styles-entry-MuP_G")
 
@@ -208,7 +207,8 @@ class Scrap():
                                     By.CLASS_NAME, "style-image-wPviB").get_attribute("src")
                                 self.spliter = self.piar_image.split(
                                     "https://www.avito.st/s/common/components/monetization/icons/web/")[1]
-                                self.piar_orders = self.spliter.replace(".svg", "")
+                                self.piar_orders = self.spliter.replace(
+                                    ".svg", "")
 
                                 if len(self.piar_data) == 0:
                                     self.piar_list = "Не использовано услуг продвижения"
@@ -227,15 +227,15 @@ class Scrap():
                         except Exception as ex:
                             print(ex)
                             self.piar_uslugi = "Не использовано услуг продвижения"
-                        sleep(2)#3
-                        self.ads2=self.ad.find_element(
+                        sleep(2)  # 3
+                        self.ads2 = self.ad.find_element(
                             By.CLASS_NAME, "iva-item-title-py3i_")
-                        
 
                         self.ads2.click()
                         self.driver.implicitly_wait(5)
-                        self.driver.switch_to.window(self.driver.window_handles[1])
-                        sleep(3)#5
+                        self.driver.switch_to.window(
+                            self.driver.window_handles[1])
+                        sleep(3)  # 5
 
                         try:
                             self.title = self.driver.find_element(
@@ -320,7 +320,8 @@ class Scrap():
 
                         try:
                             # self.time = datetime.now()
-                            self.time = self.time.strftime("%m/%d/%Y, %H:%M:%S")
+                            self.time = self.time.strftime(
+                                "%m/%d/%Y, %H:%M:%S")
                         except:
                             self.time = "Ошибка"
 
@@ -363,13 +364,14 @@ class Scrap():
                             self.close_button = self.driver.find_element(
                                 By.CLASS_NAME, 'popup-close-XlIOw')
                             self.close_button.click()
-                            sleep(2)#2
+                            sleep(2)  # 2
                             self.user1 = self.driver.find_element(
                                 By.CLASS_NAME, "style-seller-name-link-_yAhr")
                             self.user1.click()
-                            sleep(1)#2
+                            sleep(1)  # 2
                             self.user_url_demo = self.driver.current_url
-                            self.user_url = self.user_url_demo.split("?")[0].replace("?", "")
+                            self.user_url = self.user_url_demo.split(
+                                "?")[0].replace("?", "")
                             # if type == "Частное лицо":
                             try:
                                 self.orders_points = self.driver.find_element(
@@ -406,12 +408,13 @@ class Scrap():
                         self.result_list.append(self.orders_points)
                         self.array = {"values": self.list1}
                         self.response = self.service.append(spreadsheetId=self.SAMPLE_SPREADSHEET_ID,
-                                                range=self.range_, valueInputOption="USER_ENTERED", body=self.array).execute()
+                                                            range=self.range_, valueInputOption="USER_ENTERED", body=self.array).execute()
                         self.result_list.clear()
 
-                        sleep(5)#10
+                        sleep(5)  # 10
                         self.driver.close()
-                        self.driver.switch_to.window(self.driver.window_handles[0])
+                        self.driver.switch_to.window(
+                            self.driver.window_handles[0])
                     try:
                         self.button_next = self.driver.find_elements(
                             By.CLASS_NAME, 'pagination-item_arrow-Sttbt')[1]
@@ -429,7 +432,7 @@ class Scrap():
     def call_analyze(self):
         self.range_ = "Sheet2!A1:Z1000"
         # self.url = "https://www.avito.ru/ufa/avtomobili?cd=1&radius=200"
-        self.url=self.dictionary[self.category]
+        self.url = self.dictionary[self.category]
 
         try:
             self.driver.get(url=self.url)
@@ -475,7 +478,8 @@ class Scrap():
             except Exception as ex:
                 print(ex)
             for self.x in range(1, ((int(self.pages)+1))):
-                self.ads = self.driver.find_elements(By.CLASS_NAME, 'iva-item-root-_lk9K')
+                self.ads = self.driver.find_elements(
+                    By.CLASS_NAME, 'iva-item-root-_lk9K')
                 self.piar_list = {}
                 for self.ad in self.ads:
                     if self.checkPiar:
@@ -496,7 +500,8 @@ class Scrap():
                                     By.CLASS_NAME, "style-image-wPviB").get_attribute("src")
                                 self.spliter = self.piar_image.split(
                                     "https://www.avito.st/s/common/components/monetization/icons/web/")[1]
-                                self.piar_orders = self.spliter.replace(".svg", "")
+                                self.piar_orders = self.spliter.replace(
+                                    ".svg", "")
                                 if len(self.piar_data) == 0:
                                     self.piar_list = "Не использовано услуг продвижения"
                                 else:
@@ -515,12 +520,11 @@ class Scrap():
                             print(ex)
                             self.piar_uslugi = "Не использовано услуг продвижения"
                         sleep(2)
-                        
 
-                    else: 
+                    else:
                         self.piar_uslugi = "-"
                     sleep(1)
-                    self.ads2=self.ad.find_element(
+                    self.ads2 = self.ad.find_element(
                         By.CLASS_NAME, "iva-item-title-py3i_")
                     self.ads2.click()
 
@@ -575,7 +579,6 @@ class Scrap():
                     except:
                         self.since = "Не удалось определить с какого времени продавец на авито"
 
-                    
                     if self.checkAllViews:
                         try:
                             self.total_views = self.driver.find_element(
@@ -585,7 +588,7 @@ class Scrap():
                             self.total_views = "Не удалось получить просмотры за все время"
                     else:
                         self.total_views = "-"
-                    
+
                     if self.checkDayViews:
                         try:
                             self.today_views = self.driver.find_element(
@@ -594,7 +597,7 @@ class Scrap():
                             self.today_views = "Не удалось получить просмотры за сегодня"
                     else:
                         self.today_views = "-"
-                    
+
                     try:
                         type = self.driver.find_element(
                             By.CSS_SELECTOR, '[data-marker="seller-info/label"]').text
@@ -611,7 +614,7 @@ class Scrap():
                         self.time = datetime.now()
                     except:
                         self.time = "Ошибка"
-                    
+
                     if self.checkPhone:
                         try:
                             self.button = self.driver.find_element(
@@ -645,15 +648,16 @@ class Scrap():
                                 self.image = Image.open("img.png")
                                 self.phone_number = pytesseract.image_to_string(
                                     self.image)
-                                
+
                         except Exception as ex:
                             print(ex)
                             self.phone_number = "Не удалось определить номер телефона"
-                    else: self.phone_number = "-"
+                    else:
+                        self.phone_number = "-"
 
                     try:
                         self.close_button = self.driver.find_element(
-                                By.CLASS_NAME, 'popup-close-XlIOw')
+                            By.CLASS_NAME, 'popup-close-XlIOw')
                         self.close_button.click()
                         sleep(2)
                         self.user1 = self.driver.find_element(
@@ -661,7 +665,8 @@ class Scrap():
                         self.user1.click()
                         sleep(2)
                         self.user_url_demo = self.driver.current_url
-                        self.user_url = self.user_url_demo.split("?")[0].replace("?", "")
+                        self.user_url = self.user_url_demo.split(
+                            "?")[0].replace("?", "")
                         # if type == "Частное лицо":
                         try:
                             self.orders_points = self.driver.find_element(
@@ -675,35 +680,37 @@ class Scrap():
                         self.user_url = "Не удалось получить ссылку на пользователя"
                         self.orders_points = "Не удалось получить количество активных объявлений пользователя"
                     try:
-                        self.now_time = self.time.strftime("%m/%d/%Y, %H:%M:%S")
+                        self.now_time = self.time.strftime(
+                            "%m/%d/%Y, %H:%M:%S")
                     except:
                         self.now_time = "Ошибка"
 
                     self.response = self.service.get(spreadsheetId=self.SAMPLE_SPREADSHEET_ID,
-                                        range=self.range_).execute()
+                                                     range=self.range_).execute()
                     # if self.user_url not in self.response:
-                    if (self.score not in self.response) and (self.reviews not in self.response) and (self.orders_points not in self.response):
-                        self.result_list.append(self.title)
-                        self.result_list.append(self.url)
-                        self.result_list.append(self.price)
-                        self.result_list.append(self.username)
-                        self.result_list.append(self.location)
-                        self.result_list.append(self.score)
-                        self.result_list.append(self.reviews)
-                        self.result_list.append(self.category)
-                        self.result_list.append(self.describe)
-                        self.result_list.append(self.total_views)
-                        self.result_list.append(self.today_views)
-                        self.result_list.append(type)
-                        self.result_list.append(self.phone_number)
-                        self.result_list.append(self.now_time)
-                        self.result_list.append(self.piar_uslugi)
-                        self.result_list.append(self.user_url)
-                        self.result_list.append(self.orders_points)
+                    # if (self.score not in self.response) and (self.reviews not in self.response) and (self.orders_points not in self.response):
+                    self.result_list.append(self.title)
+                    self.result_list.append(self.url)
+                    self.result_list.append(self.price)
+                    self.result_list.append(self.username)
+                    self.result_list.append(self.location)
+                    self.result_list.append(self.score)
+                    self.result_list.append(self.reviews)
+                    self.result_list.append(self.category)
+                    self.result_list.append(self.describe)
+                    self.result_list.append(self.total_views)
+                    self.result_list.append(self.today_views)
+                    self.result_list.append(type)
+                    self.result_list.append(self.phone_number)
+                    self.result_list.append(self.now_time)
+                    self.result_list.append(self.piar_uslugi)
+                    self.result_list.append(self.user_url)
+                    self.result_list.append(self.orders_points)
+                    if self.result_list not in self.response:
                         self.array = {"values": self.list1}
                         self.response = self.service.append(spreadsheetId=self.SAMPLE_SPREADSHEET_ID,
-                                                range=self.range_, valueInputOption="USER_ENTERED", body=self.array).execute()
-                        self.result_list.clear()
+                                                            range=self.range_, valueInputOption="USER_ENTERED", body=self.array).execute()
+                    self.result_list.clear()
 
                     sleep(10)
                     self.driver.close()
